@@ -1,0 +1,50 @@
+name: potato4cut
+description: A Very Good Project created by Very Good CLI.
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  bloc: ^8.1.4
+  camera: ^0.11.2
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^8.1.6
+  flutter_localizations:
+    sdk: flutter
+  flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.2.0
+  image: ^4.5.4
+  intl: ^0.19.0
+  path: ^1.9.1
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  bloc_test: ^9.1.7
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.4
+  very_good_analysis: ^6.0.0
+
+flutter:
+  assets:
+    - assets/images/icons/
+    - assets/images/character/
+    - .env
+  fonts:
+    - family: HakgyoansimDunggeunmiso
+      fonts:
+        - asset: assets/fonts/HakgyoansimDunggeunmiso/Hakgyoansim_Dunggeunmiso_R.ttf
+    - family: Pretendard
+      fonts:
+        - asset: assets/fonts/Pretendard/Pretendard-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Pretendard/Pretendard-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Pretendard/Pretendard-Bold.ttf
+          weight: 800
+
+  uses-material-design: true
+  generate: true
