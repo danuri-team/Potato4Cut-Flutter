@@ -1,9 +1,13 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:potato4cut/designSystem/font.dart';
+import 'package:potato4cut/step/view/step-4.dart';
 
 class Step3Page extends StatefulWidget {
   const Step3Page({super.key});
@@ -16,11 +20,21 @@ class _Step3PageState extends State<Step3Page> {
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
   String? _errorMessage;
+  int count = 5;
+  int photoCount = 0;
+  late Timer timer;
+  bool isRunning = false;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    getDirectory();
+  }
+
+  Future<void> getDirectory() async {
+    final directory1 = await getTemporaryDirectory();
+    log('directory1 = ${directory1.listSync()}');
   }
 
   Future<void> _initializeCamera() async {
@@ -34,8 +48,8 @@ class _Step3PageState extends State<Step3Page> {
       }
 
       _cameraController = CameraController(
-        cameras.first,
-        ResolutionPreset.high,
+        cameras.last,
+        ResolutionPreset.max,
       );
 
       await _cameraController!.initialize();
@@ -57,38 +71,108 @@ class _Step3PageState extends State<Step3Page> {
   @override
   void dispose() {
     _cameraController?.dispose();
+    timer.cancel();
     super.dispose();
+  }
+
+  void countDown() {
+    if (isRunning) return;
+    isRunning = true;
+
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      (timer) async {
+        if (photoCount >= 6) {
+          timer.cancel();
+          isRunning = false;
+          return;
+        }
+
+        setState(() {
+          count--;
+        });
+
+        if (count == 0) {
+          // await _cameraController!.takePicture();
+
+          setState(() {
+            photoCount++;
+            count = 5;
+          });
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-            child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: 52.w, vertical: 58.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 52.w, vertical: 58.h),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SvgPicture.asset('assets/images/icons/close.svg'),
-              Text('2초', style: AppTextStyle.pageTitleBold),
-              Text('1/6',
-                  style: AppTextStyle.pageTitleSemiBold
-                      .copyWith(color: Colors.grey)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SvgPicture.asset('assets/images/icons/close.svg'),
+                  Text('$count초', style: AppTextStyle.pageTitleBold),
+                  Text(
+                    '$photoCount/6',
+                    style: AppTextStyle.pageTitleSemiBold
+                        .copyWith(color: Colors.grey),
+                  ),
+                ],
+              ),
+              SizedBox(height: 40.h),
+              ElevatedButton(
+                onPressed: () async {
+                  await _cameraController?.takePicture();
+                },
+                child: const Text('촬영'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await getDirectory();
+                },
+                child: const Text('불러오기'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final directory = await getTemporaryDirectory();
+                  await directory.delete(recursive: true);
+                },
+                child: const Text('삭제'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Step4Page(),
+                    ),
+                  );
+                },
+                child: const Text('step-4'),
+              ),
+              Expanded(
+                child: Center(
+                  child: _buildCameraPreview(),
+                ),
+              ),
+              SizedBox(height: 40.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset('assets/images/icons/logo.svg'),
+                ],
+              ),
             ],
           ),
-          SizedBox(height: 40.h),
-          Expanded(
-            child: Center(
-              child: _buildCameraPreview(),
-            ),
-          ),
-        ],
+        ),
       ),
-    )));
+    );
   }
 
   Widget _buildCameraPreview() {
@@ -151,7 +235,7 @@ class _Step3PageState extends State<Step3Page> {
         ),
       );
     }
-
+    countDown();
     return Container(
       width: 354.w,
       height: 526.h,
