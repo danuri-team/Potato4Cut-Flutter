@@ -13,6 +13,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:potato4cut/designSystem/font.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 
@@ -28,10 +29,13 @@ class _Step4PageState extends State<Step4Page> {
   List<File>? photos;
   List<File> selectedPhotos = [];
   File? finalPhoto;
+  late String uuidV4;
 
   @override
   void initState() {
     super.initState();
+    const uuid = Uuid();
+    uuidV4 = uuid.v4();
     getPhotos();
   }
 
@@ -57,11 +61,8 @@ class _Step4PageState extends State<Step4Page> {
       final jpgBytes = await convertPngToJpeg(pngBytes);
 
       final dir = await getApplicationDocumentsDirectory();
-      const uuid = Uuid();
-      final uuidV4 = uuid.v4();
       finalPhoto = File('${dir.path}/$uuidV4.jpeg');
       await finalPhoto?.writeAsBytes(jpgBytes);
-      log('finalPhoto = ${finalPhoto?.path}');
       setState(() {});
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -77,14 +78,19 @@ class _Step4PageState extends State<Step4Page> {
   }
 
   Future<void> printPicture() async {
-    final dio = Dio();
-    final filePath = finalPhoto!.path;
-    final formData = FormData.fromMap({
-      'file': await MultipartFile.fromFile(filePath),
-    });
-    log('formData = ${formData.boundary}, ${formData.files}');
-    final response = await dio
-        .post('http://124.61.34.206:3000/api/printer/upload', data: formData);
+    try {
+      final dio = Dio();
+      final filePath = finalPhoto!.path;
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(filePath),
+        'shouldPrint': true,
+        'border': false,
+      });
+      final response = await dio
+          .post('http://192.168.1.16:3000/api/printer/upload', data: formData);
+    } catch (e) {
+      log('error = $e');
+    }
   }
 
   final GlobalKey _repaintKey = GlobalKey();
@@ -112,7 +118,7 @@ class _Step4PageState extends State<Step4Page> {
                   SizedBox(height: 48.h),
                   Row(
                     children: [
-                      // SizedBox(width: 131.w),
+                      SizedBox(width: 131.w),
                       RepaintBoundary(
                         key: _repaintKey,
                         child: Stack(
@@ -120,18 +126,6 @@ class _Step4PageState extends State<Step4Page> {
                             SizedBox(
                               width: 262.w,
                               height: 468.h,
-                              // decoration: const BoxDecoration(
-                              // boxShadow: [
-                              //   BoxShadow(
-                              //     color: Colors.black.withOpacity(0.5),
-                              //     blurRadius: 5,
-                              //     offset: const Offset(
-                              //       2,
-                              //       5,
-                              //     ),
-                              //   ),
-                              // ],
-                              // ),
                               child: SvgPicture.asset(
                                 'assets/images/icons/default_frame.svg',
                               ),
@@ -184,6 +178,27 @@ class _Step4PageState extends State<Step4Page> {
                                     );
                                   },
                                 ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 262.w,
+                              height: 468.h,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    margin:
+                                        const EdgeInsets.fromLTRB(0, 12, 10, 0),
+                                    width: 50.w,
+                                    height: 50.h,
+                                    child: QrImageView(
+                                      data:
+                                          'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
+                                    ),
+                                  ),
+                                  SizedBox(height: 38.h),
+                                ],
                               ),
                             ),
                           ],
@@ -248,8 +263,8 @@ class _Step4PageState extends State<Step4Page> {
                                         ? [
                                             BoxShadow(
                                               color: Colors.black.withValues(),
-                                              blurRadius: 6,
-                                              offset: const Offset(0, 3),
+                                              blurRadius: 5,
+                                              offset: const Offset(0, 2),
                                             ),
                                           ]
                                         : null,
@@ -292,14 +307,6 @@ class _Step4PageState extends State<Step4Page> {
                               ),
                             ),
                           ),
-                        ),
-                      if (finalPhoto == null)
-                        const Text('null')
-                      else
-                        SizedBox(
-                          width: 262.w,
-                          height: 468.h,
-                          child: Image.file(finalPhoto!),
                         ),
                     ],
                   ),

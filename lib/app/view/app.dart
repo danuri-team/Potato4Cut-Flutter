@@ -6,6 +6,7 @@ import 'package:potato4cut/l10n/l10n.dart';
 import 'package:potato4cut/step/view/step-1.dart';
 import 'package:potato4cut/step/view/step-3.dart';
 import 'package:potato4cut/step/view/step-4.dart';
+import 'package:potato4cut/step/view/step-5.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -27,7 +28,7 @@ class App extends StatelessWidget {
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const Step3Page(),
+        home: const Step4Page(),
       ),
     );
   }
