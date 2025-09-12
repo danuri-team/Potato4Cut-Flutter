@@ -27,7 +27,7 @@ class App extends StatelessWidget {
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const Step4Page(),
+        home: const Step3Page(),
       ),
     );
   }

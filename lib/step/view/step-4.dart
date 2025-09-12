@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -12,6 +13,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:potato4cut/designSystem/font.dart';
+import 'package:uuid/uuid.dart';
+import 'package:uuid/v4.dart';
 
 class Step4Page extends StatefulWidget {
   const Step4Page({super.key});
@@ -51,11 +54,14 @@ class _Step4PageState extends State<Step4Page> {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
-      final jpgBytes = await convertPngToJpg(pngBytes);
+      final jpgBytes = await convertPngToJpeg(pngBytes);
 
       final dir = await getApplicationDocumentsDirectory();
-      finalPhoto = File('${dir.path}/collage_with_frame.jpg');
-      await finalPhoto?.writeAsBytes(jpgBytes); 
+      const uuid = Uuid();
+      final uuidV4 = uuid.v4();
+      finalPhoto = File('${dir.path}/$uuidV4.jpeg');
+      await finalPhoto?.writeAsBytes(jpgBytes);
+      log('finalPhoto = ${finalPhoto?.path}');
       setState(() {});
     } catch (e) {
       ScaffoldMessenger.of(context)
@@ -63,13 +69,12 @@ class _Step4PageState extends State<Step4Page> {
     }
   }
 
-  Future<Uint8List> convertPngToJpg(Uint8List pngBytes) async {
-  final img.Image? decoded = img.decodeImage(pngBytes);
-  if (decoded == null) throw Exception("PNG decode 실패");
+  Future<Uint8List> convertPngToJpeg(Uint8List pngBytes) async {
+    final decoded = img.decodeImage(pngBytes);
+    if (decoded == null) throw Exception('PNG decode 실패');
 
-  // 100은 품질 (0~100)
-  return Uint8List.fromList(img.encodeJpg(decoded, quality: 90));
-}
+    return Uint8List.fromList(img.encodeJpg(decoded, quality: 90));
+  }
 
   Future<void> printPicture() async {
     final dio = Dio();
@@ -77,6 +82,7 @@ class _Step4PageState extends State<Step4Page> {
     final formData = FormData.fromMap({
       'file': await MultipartFile.fromFile(filePath),
     });
+    log('formData = ${formData.boundary}, ${formData.files}');
     final response = await dio
         .post('http://124.61.34.206:3000/api/printer/upload', data: formData);
   }
@@ -111,21 +117,21 @@ class _Step4PageState extends State<Step4Page> {
                         key: _repaintKey,
                         child: Stack(
                           children: [
-                            Container(
+                            SizedBox(
                               width: 262.w,
                               height: 468.h,
-                              decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.5),
-                                    blurRadius: 5,
-                                    offset: const Offset(
-                                      2,
-                                      5,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                              // decoration: const BoxDecoration(
+                              // boxShadow: [
+                              //   BoxShadow(
+                              //     color: Colors.black.withOpacity(0.5),
+                              //     blurRadius: 5,
+                              //     offset: const Offset(
+                              //       2,
+                              //       5,
+                              //     ),
+                              //   ),
+                              // ],
+                              // ),
                               child: SvgPicture.asset(
                                 'assets/images/icons/default_frame.svg',
                               ),
@@ -149,8 +155,6 @@ class _Step4PageState extends State<Step4Page> {
                                 ),
                                 physics: const NeverScrollableScrollPhysics(),
                                 children: List.generate(
-                                  // 4,
-                                  // (index) {
                                   selectedPhotos.length < 4
                                       ? selectedPhotos.length
                                       : 4,
@@ -165,11 +169,6 @@ class _Step4PageState extends State<Step4Page> {
                                           );
                                         });
                                       },
-                                      // child: Container(
-                                      //   width: 120.w,
-                                      //   height: 171.h,
-                                      //   color: Colors.amber,
-                                      // ),
                                       child: Container(
                                         width: 120.w,
                                         height: 172.h,
@@ -191,19 +190,22 @@ class _Step4PageState extends State<Step4Page> {
                         ),
                       ),
                       SizedBox(width: 123.w),
+                      const SizedBox(width: 20),
                       if (photos == null)
                         const CircularProgressIndicator()
                       else
                         SizedBox(
-                          width: 381.w,
-                          height: 396.h,
+                          width: 462.w,
+                          height: 374.h,
                           child: GridView(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
                             gridDelegate:
                                 SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 120.w,
-                              mainAxisExtent: 172.h,
-                              mainAxisSpacing: 51,
-                              crossAxisSpacing: 30,
+                              mainAxisExtent: 170.h,
+                              mainAxisSpacing: 30,
+                              crossAxisSpacing: 51,
                             ),
                             physics: const NeverScrollableScrollPhysics(),
                             children: List.generate(
@@ -273,7 +275,7 @@ class _Step4PageState extends State<Step4Page> {
                                             ),
                                             alignment: Alignment.center,
                                             child: Text(
-                                              '${index + 1}',
+                                              '${selectedPhotos.indexOf(photos![index]) + 1}',
                                               style: TextStyle(
                                                 color: const Color(
                                                   0xFFFF09DA,
@@ -302,9 +304,13 @@ class _Step4PageState extends State<Step4Page> {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () async {
-                      await collage();
-                      await printPicture();
+                    onPressed: () {
+                      Throttle.run(
+                        () async {
+                          await collage();
+                          await printPicture();
+                        },
+                      );
                     },
                     child: const Text('출력하기'),
                   ),
@@ -314,6 +320,20 @@ class _Step4PageState extends State<Step4Page> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class Throttle {
+  static Timer? timer;
+
+  static void run(Function onTap) {
+    if (timer?.isActive ?? false) return;
+
+    onTap();
+    timer = Timer(
+      const Duration(seconds: 2),
+      () => timer = null,
     );
   }
 }

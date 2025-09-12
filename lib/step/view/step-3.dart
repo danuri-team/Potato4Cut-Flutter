@@ -85,6 +85,12 @@ class _Step3PageState extends State<Step3Page> {
         if (photoCount >= 6) {
           timer.cancel();
           isRunning = false;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Step4Page(),
+            ),
+          );
           return;
         }
 
@@ -93,7 +99,7 @@ class _Step3PageState extends State<Step3Page> {
         });
 
         if (count == 0) {
-          // await _cameraController!.takePicture();
+          await _cameraController!.takePicture();
 
           setState(() {
             photoCount++;
@@ -144,6 +150,10 @@ class _Step3PageState extends State<Step3Page> {
                   await directory.delete(recursive: true);
                 },
                 child: const Text('삭제'),
+              ),
+              ElevatedButton(
+                onPressed: countDown,
+                child: const Text('시작'),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -235,7 +245,7 @@ class _Step3PageState extends State<Step3Page> {
         ),
       );
     }
-    countDown();
+    // countDown();
     return Container(
       width: 354.w,
       height: 526.h,
