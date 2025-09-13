@@ -71,7 +71,13 @@ class _Step3PageState extends State<Step3Page> {
 
   void _startCountdown() {
     if (_isCountdownRunning) return;
-    _isCountdownRunning = true;
+
+    setState(() {
+      _takenPhotoPaths.clear();
+      photoCount = 0;
+      count = 5;
+      _isCountdownRunning = true;
+    });
 
     _timer = Timer.periodic(
       const Duration(seconds: 1),
@@ -85,7 +91,11 @@ class _Step3PageState extends State<Step3Page> {
             MaterialPageRoute(
               builder: (context) => Step4Page(photoPaths: _takenPhotoPaths),
             ),
-          );
+          ).then((_) {
+            setState(() {
+              _isCountdownRunning = false;
+            });
+          });
           return;
         }
 
@@ -175,13 +185,13 @@ class _Step3PageState extends State<Step3Page> {
     }
 
     return Container(
-      width: 354.w,
-      height: 526.h,
+      width: 700.w,
+      height: 700.h,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8.6,
             offset: const Offset(6, 12),
           ),

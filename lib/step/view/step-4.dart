@@ -24,6 +24,17 @@ class Step4Page extends StatefulWidget {
   State<Step4Page> createState() => _Step4PageState();
 }
 
+final List<Rect> _photoSlotRatios = [
+  // Slot 1 (Top-Left)
+  const Rect.fromLTWH(0.0639, 0.0603, 0.4202, 0.3618),
+  // Slot 2 (Top-Right)
+  const Rect.fromLTWH(0.5129, 0.0603, 0.4202, 0.3618),
+  // Slot 3 (Bottom-Left)
+  const Rect.fromLTWH(0.0639, 0.4496, 0.4202, 0.3618),
+  // Slot 4 (Bottom-Right)
+  const Rect.fromLTWH(0.5129, 0.4496, 0.4202, 0.3618),
+];
+
 class _Step4PageState extends State<Step4Page> {
   List<File> photos = [];
   List<File> selectedPhotos = [];
@@ -39,6 +50,26 @@ class _Step4PageState extends State<Step4Page> {
     const uuid = Uuid();
     uuidV4 = uuid.v4();
     photos = widget.photoPaths.map(File.new).toList();
+    selectedPhotos = photos.take(4).toList();
+  }
+
+  @override
+  void dispose() {
+    _cleanupTemporaryPhotos();
+    super.dispose();
+  }
+
+  Future<void> _cleanupTemporaryPhotos() async {
+    for (final path in widget.photoPaths) {
+      try {
+        final file = File(path);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (e) {
+        log('Failed to delete temporary photo: $e');
+      }
+    }
   }
 
   Future<void> collage() async {
@@ -82,11 +113,11 @@ class _Step4PageState extends State<Step4Page> {
       final filePath = finalPhoto!.path;
       final formData = FormData.fromMap({
         'image': await MultipartFile.fromFile(filePath),
-        'shouldPrint': true,
+        'shouldPrint': false,
         'border': false,
       });
       final response = await dio.post(
-        'http://192.168.1.16:3000/api/printer/upload',
+        'http://124.61.34.206:3000/api/printer/upload',
         data: formData,
       );
       return response.statusCode != null &&
@@ -119,7 +150,12 @@ class _Step4PageState extends State<Step4Page> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SvgPicture.asset('assets/images/icons/close.svg'),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: SvgPicture.asset('assets/images/icons/close.svg'),
+            ),
             SizedBox(height: 10.h),
             Align(
               child: Text(
@@ -132,7 +168,7 @@ class _Step4PageState extends State<Step4Page> {
               child: Row(
                 children: [
                   const Spacer(flex: 131),
-                  _buildPhotoFrame(),
+                  Expanded(flex: 262, child: _buildPhotoFrame()),
                   const Spacer(flex: 123),
                   _buildAvailablePhotosGrid(),
                   const Spacer(flex: 20),
@@ -188,71 +224,48 @@ class _Step4PageState extends State<Step4Page> {
   Widget _buildPhotoFrame() {
     return RepaintBoundary(
       key: _repaintKey,
-      child: Stack(
-        children: [
-          SvgPicture.asset(
-            'assets/images/icons/default_frame.svg',
-            width: 262.w,
-            height: 468.h,
-          ),
-          _buildSelectedPhotosGrid(),
-          _buildQrCode(),
-        ],
-      ),
-    );
-  }
+      child: LayoutBuilder(builder: (context, constraints) {
+        final frameWidth = constraints.maxWidth;
+        final frameHeight = constraints.maxHeight;
 
-  Widget _buildSelectedPhotosGrid() {
-    return Container(
-      padding: const EdgeInsets.only(
-        right: 23,
-        left: 19,
-        top: 6,
-        bottom: 88,
-      ),
-      width: 266.w,
-      height: 468.h,
-      child: GridView.builder(
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 120.w,
-          mainAxisExtent: 168.h,
-          mainAxisSpacing: 11,
-          crossAxisSpacing: 8,
-        ),
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: selectedPhotos.length < 4 ? selectedPhotos.length : 4,
-        itemBuilder: (context, index) {
-          final photo = selectedPhotos[index];
-          return GestureDetector(
-            onTap: () => _onPhotoTap(photo),
-            child: Container(
-              width: 120.w,
-              height: 172.h,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: FileImage(photo),
-                  fit: BoxFit.cover,
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            SvgPicture.asset(
+              'assets/images/icons/default_frame.svg',
+              fit: BoxFit.fill,
+            ),
+            for (int i = 0; i < selectedPhotos.length; i++)
+              Positioned(
+                left: frameWidth * _photoSlotRatios[i].left,
+                top: frameHeight * _photoSlotRatios[i].top,
+                width: frameWidth * _photoSlotRatios[i].width,
+                height: frameHeight * _photoSlotRatios[i].height,
+                child: RotatedBox(
+                  quarterTurns: 1,
+                  child: GestureDetector(
+                    onTap: () {
+                      _onPhotoTap(selectedPhotos[i]);
+                    },
+                    child: Image.file(
+                      selectedPhotos[i],
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
+            Positioned(
+              right: frameWidth * 0.04,
+              bottom: frameHeight * 0.08,
+              width: frameWidth * 0.2,
+              height: frameWidth * 0.2,
+              child: QrImageView(
+                data: 'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
+              ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildQrCode() {
-    return Positioned(
-      right: 10,
-      bottom: 38,
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(0, 12, 10, 0),
-        width: 50.w,
-        height: 50.h,
-        child: QrImageView(
-          data: 'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
-        ),
-      ),
+          ],
+        );
+      }),
     );
   }
 
