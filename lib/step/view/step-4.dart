@@ -18,8 +18,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class Step4Page extends StatefulWidget {
+  const Step4Page({required this.photoPaths, super.key});
   final List<String> photoPaths;
-  const Step4Page({super.key, required this.photoPaths});
 
   @override
   State<Step4Page> createState() => _Step4PageState();
@@ -200,12 +200,16 @@ class _Step4PageState extends State<Step4Page> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const Step5Page()),
+                                  builder: (context) => Step5Page(
+                                    uuid: uuidV4,
+                                  ),
+                                ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('출력에 실패했습니다. 다시 시도해주세요.')),
+                                  content: Text('출력에 실패했습니다. 다시 시도해주세요.'),
+                                ),
                               );
                             }
                           },
@@ -225,48 +229,51 @@ class _Step4PageState extends State<Step4Page> {
   Widget _buildPhotoFrame() {
     return RepaintBoundary(
       key: _repaintKey,
-      child: LayoutBuilder(builder: (context, constraints) {
-        final frameWidth = constraints.maxWidth;
-        final frameHeight = constraints.maxHeight;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final frameWidth = constraints.maxWidth;
+          final frameHeight = constraints.maxHeight;
 
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            SvgPicture.asset(
-              'assets/images/icons/default_frame.svg',
-              fit: BoxFit.fill,
-            ),
-            for (int i = 0; i < selectedPhotos.length; i++)
-              Positioned(
-                left: frameWidth * _photoSlotRatios[i].left,
-                top: frameHeight * _photoSlotRatios[i].top,
-                width: frameWidth * _photoSlotRatios[i].width,
-                height: frameHeight * _photoSlotRatios[i].height,
-                child: RotatedBox(
-                  quarterTurns: 1,
-                  child: GestureDetector(
-                    onTap: () {
-                      _onPhotoTap(selectedPhotos[i]);
-                    },
-                    child: Image.file(
-                      selectedPhotos[i],
-                      fit: BoxFit.cover,
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              SvgPicture.asset(
+                'assets/images/icons/default_frame.svg',
+                fit: BoxFit.fill,
+              ),
+              for (int i = 0; i < selectedPhotos.length; i++)
+                Positioned(
+                  left: frameWidth * _photoSlotRatios[i].left,
+                  top: frameHeight * _photoSlotRatios[i].top,
+                  width: frameWidth * _photoSlotRatios[i].width,
+                  height: frameHeight * _photoSlotRatios[i].height,
+                  child: RotatedBox(
+                    quarterTurns: 1,
+                    child: GestureDetector(
+                      onTap: () {
+                        _onPhotoTap(selectedPhotos[i]);
+                      },
+                      child: Image.file(
+                        selectedPhotos[i],
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            Positioned(
-              right: frameWidth * 0.04,
-              bottom: frameHeight * 0.08,
-              width: frameWidth * 0.2,
-              height: frameWidth * 0.2,
-              child: QrImageView(
-                data: 'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
-              ),
-            ),
-          ],
-        );
-      }),
+              // Positioned(
+              //   right: frameWidth * 0.04,
+              //   bottom: frameHeight * 0.08,
+              //   width: frameWidth * 0.2,
+              //   height: frameWidth * 0.2,
+              //   child: QrImageView(
+              //     data:
+              //         'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
+              //   ),
+              // ),
+            ],
+          );
+        },
+      ),
     );
   }
 
