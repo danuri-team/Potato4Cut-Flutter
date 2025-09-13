@@ -129,7 +129,7 @@ class _Step3PageState extends State<Step3Page> {
               SizedBox(height: 40.h),
               Center(
                 child: SizedBox(
-                  width: 500.w,
+                  width: 640.w,
                   height: 450.h,
                   child: _buildCameraPreview(),
                 ),
