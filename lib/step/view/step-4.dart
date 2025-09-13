@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:developer';
+import 'dart:developer' as dev;
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -50,7 +51,7 @@ class _Step4PageState extends State<Step4Page> {
     const uuid = Uuid();
     uuidV4 = uuid.v4();
     photos = widget.photoPaths.map(File.new).toList();
-    selectedPhotos = photos.take(4).toList();
+    // selectedPhotos = photos.take(4).toList();
   }
 
   @override
@@ -67,7 +68,7 @@ class _Step4PageState extends State<Step4Page> {
           await file.delete();
         }
       } catch (e) {
-        log('Failed to delete temporary photo: $e');
+        // log('Failed to delete temporary photo: $e');
       }
     }
   }
@@ -117,14 +118,14 @@ class _Step4PageState extends State<Step4Page> {
         'border': false,
       });
       final response = await dio.post(
-        'http://124.61.34.206:3000/api/printer/upload',
+        'http://10.211.41.155:3000/api/printer/upload',
         data: formData,
       );
       return response.statusCode != null &&
           response.statusCode! >= 200 &&
           response.statusCode! < 300;
     } catch (e) {
-      log('error = $e');
+      // log('error = $e');
       return false;
     }
   }

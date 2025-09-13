@@ -130,16 +130,21 @@ class _Step3PageState extends State<Step3Page> {
               Expanded(
                 child: Center(
                   child: _buildCameraPreview(),
+                  
                 ),
               ),
               SizedBox(height: 40.h),
               if (_isCameraInitialized && !_isCountdownRunning)
-                ElevatedButton(
-                  onPressed: _startCountdown,
-                  child: const Text('촬영 시작'),
+                SizedBox(
+                  width: 110.w,
+                  height: 54.h,
+                  child: ElevatedButton(
+                    onPressed: _startCountdown,
+                    child: const Text('촬영 시작'),
+                  ),
                 ),
-              SizedBox(height: 20.h),
-              _buildFooter(),
+              // SizedBox(height: 20.h),
+              // _buildFooter(),
             ],
           ),
         ),
@@ -149,21 +154,21 @@ class _Step3PageState extends State<Step3Page> {
 
   Widget _buildHeader() {
     return GestureDetector(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SvgPicture.asset('assets/images/icons/close.svg'),
-            Text('$count초', style: AppTextStyle.pageTitleBold),
-            Text(
-              '$photoCount/6',
-              style:
-                  AppTextStyle.pageTitleSemiBold.copyWith(color: Colors.grey),
-            ),
-          ],
-        ));
+      onTap: () {
+        Navigator.pop(context);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SvgPicture.asset('assets/images/icons/close.svg'),
+          Text('$count초', style: AppTextStyle.pageTitleBold),
+          Text(
+            '$photoCount/6',
+            style: AppTextStyle.pageTitleSemiBold.copyWith(color: Colors.grey),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildFooter() {

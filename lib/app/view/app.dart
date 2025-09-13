@@ -4,6 +4,7 @@ import 'package:potato4cut/home/view/home_page.dart';
 import 'package:potato4cut/l10n/arb/app_localizations.dart';
 import 'package:potato4cut/l10n/l10n.dart';
 import 'package:potato4cut/step/view/step-1.dart';
+import 'package:potato4cut/step/view/step-2.dart';
 import 'package:potato4cut/step/view/step-3.dart';
 import 'package:potato4cut/step/view/step-4.dart';
 import 'package:potato4cut/step/view/step-5.dart';
@@ -23,13 +24,13 @@ class App extends StatelessWidget {
           appBarTheme: const AppBarTheme(
             backgroundColor: Colors.white,
           ),
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.white), 
           useMaterial3: true,
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: const Step4Page(),
+        home: const HomePage(),
       ),
-    );
+    );                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
   }
 }
