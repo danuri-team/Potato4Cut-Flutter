@@ -24,6 +24,7 @@ class _Step3PageState extends State<Step3Page> {
   int photoCount = 0;
   late Timer timer;
   bool isRunning = false;
+  List<String> takenPhotoPaths = [];
 
   @override
   void initState() {
@@ -34,7 +35,7 @@ class _Step3PageState extends State<Step3Page> {
 
   Future<void> getDirectory() async {
     final directory1 = await getTemporaryDirectory();
-    log('directory1 = ${directory1.listSync()}');
+    log('directory1 = \${directory1.listSync()}');
   }
 
   Future<void> _initializeCamera() async {
@@ -62,7 +63,7 @@ class _Step3PageState extends State<Step3Page> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = '카메라 초기화 실패: $e';
+          _errorMessage = '카메라 초기화 실패: \$e';
         });
       }
     }
@@ -71,7 +72,9 @@ class _Step3PageState extends State<Step3Page> {
   @override
   void dispose() {
     _cameraController?.dispose();
-    timer.cancel();
+    if (isRunning) {
+      timer.cancel();
+    }
     super.dispose();
   }
 
@@ -88,7 +91,7 @@ class _Step3PageState extends State<Step3Page> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => const Step4Page(),
+              builder: (context) => Step4Page(photoPaths: takenPhotoPaths),
             ),
           );
           return;
@@ -99,7 +102,8 @@ class _Step3PageState extends State<Step3Page> {
         });
 
         if (count == 0) {
-          await _cameraController!.takePicture();
+          final imageFile = await _cameraController!.takePicture();
+          takenPhotoPaths.add(imageFile.path);
 
           setState(() {
             photoCount++;
@@ -134,7 +138,10 @@ class _Step3PageState extends State<Step3Page> {
               SizedBox(height: 40.h),
               ElevatedButton(
                 onPressed: () async {
-                  await _cameraController?.takePicture();
+                  final imageFile = await _cameraController?.takePicture();
+                  if (imageFile != null) {
+                    takenPhotoPaths.add(imageFile.path);
+                  }
                 },
                 child: const Text('촬영'),
               ),
@@ -148,6 +155,7 @@ class _Step3PageState extends State<Step3Page> {
                 onPressed: () async {
                   final directory = await getTemporaryDirectory();
                   await directory.delete(recursive: true);
+                  await directory.create(); // Also recreate it
                 },
                 child: const Text('삭제'),
               ),
@@ -160,7 +168,7 @@ class _Step3PageState extends State<Step3Page> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const Step4Page(),
+                      builder: (context) => Step4Page(photoPaths: takenPhotoPaths),
                     ),
                   );
                 },

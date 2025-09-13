@@ -18,15 +18,15 @@ import 'package:uuid/uuid.dart';
 import 'package:uuid/v4.dart';
 
 class Step4Page extends StatefulWidget {
-  const Step4Page({super.key});
+  final List<String> photoPaths;
+  const Step4Page({super.key, required this.photoPaths});
 
   @override
   State<Step4Page> createState() => _Step4PageState();
 }
 
 class _Step4PageState extends State<Step4Page> {
-  late final Directory directory;
-  List<File>? photos;
+  List<File> photos = [];
   List<File> selectedPhotos = [];
   File? finalPhoto;
   late String uuidV4;
@@ -36,13 +36,7 @@ class _Step4PageState extends State<Step4Page> {
     super.initState();
     const uuid = Uuid();
     uuidV4 = uuid.v4();
-    getPhotos();
-  }
-
-  Future<void> getPhotos() async {
-    directory = await getTemporaryDirectory();
-    photos = directory.listSync().cast<File>();
-    setState(() {});
+    photos = widget.photoPaths.map((path) => File(path)).toList();
   }
 
   Future<void> collage() async {
@@ -61,7 +55,7 @@ class _Step4PageState extends State<Step4Page> {
       final jpgBytes = await convertPngToJpeg(pngBytes);
 
       final dir = await getApplicationDocumentsDirectory();
-      finalPhoto = File('${dir.path}/$uuidV4.jpeg');
+      finalPhoto = File('\${dir.path}/\$uuidV4.jpeg');
       await finalPhoto?.writeAsBytes(jpgBytes);
       setState(() {});
     } catch (e) {
@@ -89,7 +83,7 @@ class _Step4PageState extends State<Step4Page> {
       final response = await dio
           .post('http://192.168.1.16:3000/api/printer/upload', data: formData);
     } catch (e) {
-      log('error = $e');
+      log('error = \$e');
     }
   }
 
@@ -194,7 +188,7 @@ class _Step4PageState extends State<Step4Page> {
                                     height: 50.h,
                                     child: QrImageView(
                                       data:
-                                          'https://storage.danuri.cloud/potato-4-cut/$uuidV4.jpeg',
+                                          'https://storage.danuri.cloud/potato-4-cut/\$uuidV4.jpeg',
                                     ),
                                   ),
                                   SizedBox(height: 38.h),
@@ -206,10 +200,7 @@ class _Step4PageState extends State<Step4Page> {
                       ),
                       SizedBox(width: 123.w),
                       const SizedBox(width: 20),
-                      if (photos == null)
-                        const CircularProgressIndicator()
-                      else
-                        SizedBox(
+                      SizedBox(
                           width: 462.w,
                           height: 374.h,
                           child: GridView(
@@ -224,18 +215,18 @@ class _Step4PageState extends State<Step4Page> {
                             ),
                             physics: const NeverScrollableScrollPhysics(),
                             children: List.generate(
-                              6,
+                              photos.length,
                               (index) => GestureDetector(
                                 onTap: () {
-                                  if (selectedPhotos.contains(photos![index])) {
+                                  if (selectedPhotos.contains(photos[index])) {
                                     setState(() {
                                       selectedPhotos.removeWhere(
-                                        (element) => element == photos![index],
+                                        (element) => element == photos[index],
                                       );
                                     });
                                   } else if (selectedPhotos.length < 4) {
                                     setState(() {
-                                      selectedPhotos.add(photos![index]);
+                                      selectedPhotos.add(photos[index]);
                                     });
                                   }
                                 },
@@ -245,7 +236,7 @@ class _Step4PageState extends State<Step4Page> {
                                   decoration: BoxDecoration(
                                     image: DecorationImage(
                                       colorFilter: (selectedPhotos.contains(
-                                        photos![index],
+                                        photos[index],
                                       ))
                                           ? ColorFilter.mode(
                                               Colors.black.withOpacity(0.4),
@@ -253,12 +244,12 @@ class _Step4PageState extends State<Step4Page> {
                                             )
                                           : null,
                                       image: FileImage(
-                                        photos![index],
+                                        photos[index],
                                       ),
                                       fit: BoxFit.cover,
                                     ),
                                     boxShadow: (selectedPhotos.contains(
-                                      photos![index],
+                                      photos[index],
                                     ))
                                         ? [
                                             BoxShadow(
@@ -270,7 +261,7 @@ class _Step4PageState extends State<Step4Page> {
                                         : null,
                                   ),
                                   child: (selectedPhotos.contains(
-                                    photos![index],
+                                    photos[index],
                                   ))
                                       ? Center(
                                           child: Container(
@@ -290,7 +281,7 @@ class _Step4PageState extends State<Step4Page> {
                                             ),
                                             alignment: Alignment.center,
                                             child: Text(
-                                              '${selectedPhotos.indexOf(photos![index]) + 1}',
+                                              '${selectedPhotos.indexOf(photos[index]) + 1}',
                                               style: TextStyle(
                                                 color: const Color(
                                                   0xFFFF09DA,
@@ -344,44 +335,3 @@ class Throttle {
     );
   }
 }
-
-// abstract class AppDio {
-//   AppDio._internal();
-
-//   static Dio? _instance;
-
-//   static Dio getInstance() => _instance ??= _AppDio();
-// }
-
-// class _AppDio with DioMixin implements AppDio {
-//   _AppDio() {
-//     httpClientAdapter = IOHttpClientAdapter();
-//     options = BaseOptions(
-//       baseUrl: dotenv.env['API_URL']!,
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       sendTimeout: const Duration(seconds: 30),
-//       connectTimeout: const Duration(seconds: 30),
-//       receiveTimeout: const Duration(seconds: 30),
-//       receiveDataWhenStatusError: true,
-//     );
-
-//     interceptors.addAll(
-//       [
-//         InterceptorsWrapper(
-//           onError: (error, handler) async {
-//             return handler.reject(error);
-//           },
-//           onRequest: (options, handler) async {
-//             return handler.next(options);
-//           },
-//         ),
-//         LogInterceptor(
-//           requestBody: true,
-//           responseBody: true,
-//         ),
-//       ],
-//     );
-//   }
-// }
