@@ -165,16 +165,21 @@ class _Step4PageState extends State<Step4Page> {
               ),
             ),
             SizedBox(height: 48.h),
-            Expanded(
-              child: Row(
-                children: [
-                  const Spacer(flex: 131),
-                  Expanded(flex: 262, child: _buildPhotoFrame()),
-                  const Spacer(flex: 123),
-                  _buildAvailablePhotosGrid(),
-                  const Spacer(flex: 20),
-                ],
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 262.w,
+                  height: 468,
+                  child: _buildPhotoFrame(),
+                ),
+                SizedBox(width: 20.w),
+                SizedBox(
+                  width: 662.w,
+                  height: 374.h,
+                  child: _buildAvailablePhotosGrid(),
+                ),
+              ],
             ),
             Center(
               child: ElevatedButton(
@@ -279,13 +284,13 @@ class _Step4PageState extends State<Step4Page> {
 
   Widget _buildAvailablePhotosGrid() {
     return SizedBox(
-      width: 462.w,
+      width: 662.w,
       height: 374.h,
       child: GridView.builder(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
         gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 120.w,
+          maxCrossAxisExtent: 190.w,
           mainAxisExtent: 170.h,
           mainAxisSpacing: 30,
           crossAxisSpacing: 51,

@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:potato4cut/home/view/home_page.dart';
-import 'package:potato4cut/step/view/text_field.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class Step5Page extends StatefulWidget {
