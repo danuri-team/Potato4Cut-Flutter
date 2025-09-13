@@ -24,7 +24,7 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 94),
+            SizedBox(height: 64.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -90,23 +90,52 @@ class HomePage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 40.h),
-            Align(
-              child: SizedBox(
-                width: 110.w,
-                height: 54.h,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const Step3Page(),
-                      ),
-                    );
-                  },
-                  child: const Text('시작하기'),
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const Step3Page(),
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 190.w,
+                  height: 68.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.black,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '시작하기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ),
+            // Center(
+            //   child: SizedBox(
+            //     width: 190.w,
+            //     height: 68.h,
+            //     child: ElevatedButton(
+            //       onPressed: () {
+            //         Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => const Step3Page(),
+            //           ),
+            //         );
+            //       },
+            //       child: const Text('시작하기'),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

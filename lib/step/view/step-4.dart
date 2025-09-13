@@ -182,8 +182,8 @@ class _Step4PageState extends State<Step4Page> {
               ],
             ),
             Center(
-              child: ElevatedButton(
-                onPressed: _isPrinting
+              child: GestureDetector(
+                onTap: _isPrinting
                     ? null
                     : () {
                         Throttle.run(
@@ -220,10 +220,65 @@ class _Step4PageState extends State<Step4Page> {
                           },
                         );
                       },
-                child: _isPrinting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('출력하기'),
+                child: Container(
+                  width: 190.w,
+                  height: 68.h,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    color: Colors.black,
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '출력하기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
+              // child: ElevatedButton(
+              //   onPressed: _isPrinting
+              //       ? null
+              //       : () {
+              //           Throttle.run(
+              //             () async {
+              //               setState(() {
+              //                 _isPrinting = true;
+              //               });
+
+              //               await collage();
+              //               final success = await printPicture();
+
+              //               if (!mounted) return;
+
+              //               setState(() {
+              //                 _isPrinting = false;
+              //               });
+
+              //               if (success) {
+              //                 Navigator.pushReplacement(
+              //                   context,
+              //                   MaterialPageRoute(
+              //                     builder: (context) => Step5Page(
+              //                       uuid: uuidV4,
+              //                     ),
+              //                   ),
+              //                 );
+              //               } else {
+              //                 ScaffoldMessenger.of(context).showSnackBar(
+              //                   const SnackBar(
+              //                     content: Text('출력에 실패했습니다. 다시 시도해주세요.'),
+              //                   ),
+              //                 );
+              //               }
+              //             },
+              //           );
+              //         },
+              //   child: _isPrinting
+              //       ? const CircularProgressIndicator(color: Colors.white)
+              //       : const Text('출력하기'),
             ),
           ],
         ),

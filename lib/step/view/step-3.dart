@@ -127,19 +127,40 @@ class _Step3PageState extends State<Step3Page> {
             children: [
               _buildHeader(),
               SizedBox(height: 40.h),
-              Expanded(
-                child: Center(
+              Center(
+                child: SizedBox(
+                  width: 500.w,
+                  height: 450.h,
                   child: _buildCameraPreview(),
                 ),
               ),
-              SizedBox(height: 40.h),
+              // Expanded(
+              //   child: Center(
+              //     child: _buildCameraPreview(),
+              //   ),
+              // ),
+              SizedBox(height: 20.h),
               if (_isCameraInitialized && !_isCountdownRunning)
-                SizedBox(
-                  width: 110.w,
-                  height: 54.h,
-                  child: ElevatedButton(
-                    onPressed: _startCountdown,
-                    child: const Text('촬영 시작'),
+                Center(
+                  child: GestureDetector(
+                    onTap: _startCountdown,
+                    child: Container(
+                      width: 190.w,
+                      height: 68.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        color: Colors.black,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '촬영 시작',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               // SizedBox(height: 20.h),
