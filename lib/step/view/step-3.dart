@@ -130,7 +130,6 @@ class _Step3PageState extends State<Step3Page> {
               Expanded(
                 child: Center(
                   child: _buildCameraPreview(),
-                  
                 ),
               ),
               SizedBox(height: 40.h),
@@ -161,10 +160,32 @@ class _Step3PageState extends State<Step3Page> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SvgPicture.asset('assets/images/icons/close.svg'),
-          Text('$count초', style: AppTextStyle.pageTitleBold),
-          Text(
-            '$photoCount/6',
-            style: AppTextStyle.pageTitleSemiBold.copyWith(color: Colors.grey),
+          RichText(
+            text: TextSpan(
+              text: '$count',
+              style: AppTextStyle.pageTitleBold
+                  .copyWith(color: Colors.red, fontSize: 44.sp),
+              children: [
+                TextSpan(
+                  text: '초',
+                  style: TextStyle(color: Colors.black, fontSize: 32.sp),
+                ),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              text: '$photoCount',
+              style: AppTextStyle.pageTitleBold
+                  .copyWith(color: Colors.red, fontSize: 44.sp),
+              children: [
+                TextSpan(
+                  text: '/6',
+                  style: AppTextStyle.pageTitleSemiBold
+                      .copyWith(color: Colors.grey),
+                ),
+              ],
+            ),
           ),
         ],
       ),
